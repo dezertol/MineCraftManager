@@ -1,0 +1,16 @@
+[Unit]
+Description=Minecraft Manager Web App
+After=network.target
+
+[Service]
+Type=simple
+User=ec2-user
+Group=ec2-user
+WorkingDirectory=/home/ec2-user/MineCraftManager
+EnvironmentFile=/home/ec2-user/MineCraftManager/.env
+ExecStart=/home/ec2-user/MineCraftManager/.venv/bin/gunicorn --workers 2 --bind 0.0.0.0:8080 run:app
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
