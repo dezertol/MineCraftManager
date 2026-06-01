@@ -20,7 +20,7 @@ pip install -r requirements.txt
 cp .env.example .env
 ```
 
-Edit `.env` for your server paths and connection details, then export it before running:
+Edit `.env` for your server paths and connection details. For local development:
 
 ```bash
 set -a
@@ -29,7 +29,22 @@ set +a
 flask --app run run --host 0.0.0.0 --port 8080
 ```
 
-For production, run this Flask app behind a reverse proxy and set a real `MCM_SECRET_KEY`.
+For production, set a real `MCM_SECRET_KEY` and run the app through Gunicorn/systemd:
+
+```bash
+.venv/bin/pip install -r requirements.txt
+./scripts/install-web-service.sh
+sudo systemctl start minecraft-manager.service
+systemctl status minecraft-manager.service
+```
+
+The installer binds Gunicorn to `0.0.0.0:8080` by default. Override with `MCM_WEB_BIND`, for example:
+
+```bash
+MCM_WEB_BIND=127.0.0.1:8080 ./scripts/install-web-service.sh
+```
+
+Use a reverse proxy such as nginx or Caddy in front of it when exposing it publicly.
 
 ## Minecraft Server Control
 
