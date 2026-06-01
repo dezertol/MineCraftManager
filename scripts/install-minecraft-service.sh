@@ -4,10 +4,28 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 
 if [[ -f .env ]]; then
-  set -a
-  # shellcheck disable=SC1091
-  source .env
-  set +a
+  while IFS= read -r raw_line || [[ -n "$raw_line" ]]; do
+    line="${raw_line#"${raw_line%%[![:space:]]*}"}"
+    line="${line%"${line##*[![:space:]]}"}"
+    [[ -z "$line" || "${line:0:1}" == "#" || "$line" != *"="* ]] && continue
+
+    key="${line%%=*}"
+    value="${line#*=}"
+    key="${key%"${key##*[![:space:]]}"}"
+    value="${value#"${value%%[![:space:]]*}"}"
+    value="${value%"${value##*[![:space:]]}"}"
+
+    [[ "$key" =~ ^[A-Za-z_][A-Za-z0-9_]*$ ]] || continue
+    [[ -n "${!key-}" ]] && continue
+
+    if [[ "$value" == \"*\" && "$value" == *\" ]]; then
+      value="${value:1:${#value}-2}"
+    elif [[ "$value" == \'*\' && "$value" == *\' ]]; then
+      value="${value:1:${#value}-2}"
+    fi
+
+    export "$key=$value"
+  done < .env
 fi
 
 SERVICE_NAME="${MCM_SERVICE_NAME:-minecraft.service}"
