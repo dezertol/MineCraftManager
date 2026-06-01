@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="hero compact">
+  <div>
+    <p class="eyebrow">Admin</p>
+    <h1>Server Controls</h1>
+    <p class="muted">{{ server.server_dir }}</p>
+  </div>
+</section>
+
+<section class="toolbar">
+  <form method="post" action="{{ url_for('main.server_action', action='start') }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button>Start</button></form>
+  <form method="post" action="{{ url_for('main.server_action', action='stop') }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button>Stop</button></form>
+  <form method="post" action="{{ url_for('main.server_action', action='restart') }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button>Restart</button></form>
+  <form method="post" action="{{ url_for('main.server_action', action='backup') }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button>Backup</button></form>
+  <form method="post" action="{{ url_for('main.server_action', action='backup_restart') }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button>Backup + Restart</button></form>
+  <form method="post" action="{{ url_for('main.server_action', action='upgrade') }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button>Upgrade Cycle</button></form>
+</section>
+
+<section class="grid two">
+  <article class="card">
+    <h2>Users</h2>
+    <table>
+      <thead>
+        <tr><th>Email</th><th>Minecraft</th><th>Role</th><th></th></tr>
+      </thead>
+      <tbody>
+        {% for user in users %}
+          <tr>
+            <td>{{ user.email }}</td>
+            <td>{{ user.minecraft_name }}</td>
+            <td>{{ "Admin" if user.is_admin else "Player" }}</td>
+            <td>
+              {% if user.id != current_user.id %}
+                <form method="post" action="{{ url_for('main.toggle_admin', user_id=user.id) }}">
+                  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                  <button class="small">{{ "Remove admin" if user.is_admin else "Make admin" }}</button>
+                </form>
+              {% endif %}
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </article>
+
+  <article class="card">
+    <h2>Whitelist</h2>
+    <form class="inline-form" method="post" action="{{ url_for('main.whitelist_add') }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <input name="minecraft_name" placeholder="Minecraft username" minlength="3" maxlength="16" pattern="[A-Za-z0-9_]{3,16}" required>
+      <button>Add</button>
+    </form>
+    <table>
+      <tbody>
+        {% for entry in whitelist %}
+          <tr>
+            <td>{{ entry.name }}</td>
+            <td>
+              <form method="post" action="{{ url_for('main.whitelist_remove', name=entry.name) }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button class="small">Remove</button>
+              </form>
+            </td>
+          </tr>
+        {% else %}
+          <tr><td>No whitelist entries yet.</td><td></td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </article>
+</section>
+
+<section class="card">
+  <h2>Recent Backups</h2>
+  <table>
+    <thead>
+      <tr><th>Name</th><th>Created</th><th>Size</th></tr>
+    </thead>
+    <tbody>
+      {% for backup in backups %}
+        <tr><td>{{ backup.name }}</td><td>{{ backup.created }}</td><td>{{ (backup.size / 1048576)|round(1) }} MB</td></tr>
+      {% else %}
+        <tr><td>No backups yet.</td><td></td><td></td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+{% endblock %}

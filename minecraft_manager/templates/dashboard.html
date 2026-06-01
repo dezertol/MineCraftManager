@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="hero">
+  <div>
+    <p class="eyebrow">Server Status</p>
+    <h1>{{ "Online" if server.running else "Offline or unknown" }}</h1>
+    <p class="muted">{{ server.status_text }}</p>
+  </div>
+  <span class="status-pill {{ 'online' if server.running else 'offline' }}">
+    {{ "Running" if server.running else "Not running" }}
+  </span>
+</section>
+
+<section class="grid">
+  <article class="card">
+    <h2>Connection</h2>
+    <dl>
+      <dt>Host</dt>
+      <dd>{{ server.connection_host }}</dd>
+      <dt>Port</dt>
+      <dd>{{ server.connection_port }}</dd>
+    </dl>
+  </article>
+  <article class="card">
+    <h2>Version</h2>
+    <dl>
+      <dt>Installed</dt>
+      <dd>{{ server.version }}</dd>
+      <dt>Latest release</dt>
+      <dd>{{ server.latest_version }}</dd>
+    </dl>
+  </article>
+  <article class="card">
+    <h2>Your Account</h2>
+    <dl>
+      <dt>Minecraft user</dt>
+      <dd>{{ current_user.minecraft_name }}</dd>
+      <dt>Role</dt>
+      <dd>{{ "Admin" if current_user.is_admin else "Player" }}</dd>
+    </dl>
+  </article>
+</section>
+{% endblock %}

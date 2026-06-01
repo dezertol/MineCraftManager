@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="auth-panel">
+  <h1>Log in</h1>
+  <form method="post" class="form">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <label>Email
+      <input name="email" type="email" autocomplete="email" required>
+    </label>
+    <label>Password
+      <input name="password" type="password" autocomplete="current-password" required>
+    </label>
+    <button type="submit">Log in</button>
+  </form>
+  <p class="muted">Need access? <a href="{{ url_for('main.register') }}">Create an account</a>.</p>
+</section>
+{% endblock %}
